@@ -97,6 +97,7 @@ namespace TcxMerger
 						yield return destinationActivitiesElement.Document;
 
 						destinationActivitiesElement = fileActivitiesElement;
+						continue;
 					}
 				}
 
