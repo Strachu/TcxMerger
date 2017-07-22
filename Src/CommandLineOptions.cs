@@ -39,7 +39,7 @@ namespace TcxMerger
 			var help = HelpText.AutoBuild(parsingResult);
 
 			help.AddPreOptionsLine(" ");
-			help.AddPreOptionsLine($"Usage: {exeName} [options] source_file1_path, source_file2_path, ..., destination_path");
+			help.AddPreOptionsLine($"Usage: {exeName} [options] source_file1_path source_file2_path ... destination_path");
 
 			return help.ToString();
 		}
