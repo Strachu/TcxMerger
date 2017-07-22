@@ -83,6 +83,7 @@ namespace TcxMerger
 		private static IEnumerable<XDocument> MergeFiles(IEnumerable<string> filesToMerge, int? maxSize)
 		{
 			var destinationActivitiesElement = ReadActivitiesTag(filesToMerge.First());
+			int destinationAccumulatedSize = GetElementSize(destinationActivitiesElement);
 
 			foreach(var nextFile in filesToMerge.Skip(1))
 			{
@@ -91,14 +92,16 @@ namespace TcxMerger
 				if(maxSize != null)
 				{
 					var elementSize = GetElementSize(fileActivitiesElement);
-					var mergedSize = GetElementSize(destinationActivitiesElement);
-					if(mergedSize + elementSize > maxSize)
+					if(destinationAccumulatedSize + elementSize > maxSize)
 					{
 						yield return destinationActivitiesElement.Document;
 
 						destinationActivitiesElement = fileActivitiesElement;
+						destinationAccumulatedSize = GetElementSize(destinationActivitiesElement);
 						continue;
 					}
+
+					destinationAccumulatedSize += elementSize;
 				}
 
 				destinationActivitiesElement.Add(fileActivitiesElement);
@@ -118,7 +121,6 @@ namespace TcxMerger
 
 		private static int GetElementSize(XElement element)
 		{
-			// TODO Very inefficient - slow downs with accumulated size
 			using(var memoryStream = new MemoryStream())
 			{
 				element.Save(memoryStream, SaveOptions.DisableFormatting);
