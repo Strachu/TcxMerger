@@ -1,9 +1,9 @@
 # TcxMerger
-**TcxMerger** is a command line application for merging many .tcx files into a single .tcx file with multiple activities.
+**TcxMerger** is a command line application for merging multiple .tcx files into a single .tcx file with multiple activities.
 
-Some workout sites such as Endomondo allows only for selection of a single file TCX to import at once.
-Importing many workouts spread to single file per workout can be tedious. This application helps to mitigate the work
-to be done by merging the files into one big file which can be imported into Endomondo in a single click while still 
+Some workout sites such as Endomondo allows only for selection of a single TCX file to import at once.
+Importing many workouts spread into a single file per workout can be tedious. This application helps to mitigate the work
+to be done by merging the files into a one big file which can be imported into Endomondo in a single click while still 
 importing all the workouts.
 
 # Features
