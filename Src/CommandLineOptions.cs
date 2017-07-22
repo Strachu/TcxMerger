@@ -28,6 +28,10 @@ namespace TcxMerger
 			}
 		}
 
+		// TODO Support also some user friendly suffixes
+		[Option('s', "max-size", Required = false, HelpText = "Split the resulting file to a multiple files if its size exceed specified value in bytes.")]
+		public int? MaxFileSize { get; set; }
+
 		public static string GetHelpText(ParserResult<CommandLineOptions> parsingResult)
 		{
 			var exeName = Path.GetFileName(Environment.GetCommandLineArgs()[0]);

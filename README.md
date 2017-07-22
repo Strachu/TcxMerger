@@ -8,6 +8,7 @@ importing all the workouts.
 
 # Features
 - Merging of virtually unlimited number of files into a one big TCX file.
+- Built-in splitting of the resulting file if it exceeds specified size.
 - Cross platform - should work on every platform with .NET / Mono implementation. Tested on Xubuntu 16.04.
 
 # Requirements
@@ -36,6 +37,8 @@ panel of this page.
 ``mono TcxMerger.exe /home/janusz/file1.tcx /home/janusz/file2.tcx /home/janusz/big.tcx``
 * Merge all files with extension .tcx from a directory workouts into a big.tcx:  
 ``mono TcxMerger.exe /home/janusz/workouts/*.tcx /home/janusz/big.tcx``
+* Merge all files with extension .tcx from a directory workouts into a big.tcx splitting it into smaller files if it exceeds 20MiB: 
+``mono TcxMerger.exe --max-size 20971520 /home/janusz/workouts/*.tcx /home/janusz/big.tcx``
 
 # Libraries
 The application uses the following libraries:

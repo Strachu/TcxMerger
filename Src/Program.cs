@@ -4,7 +4,6 @@ using CommandLine;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace TcxMerger
@@ -33,12 +32,30 @@ namespace TcxMerger
 
 			Console.WriteLine($"Got {filesToMerge.Count} files to merge into {options.DestinationFilePath}.");
 
-			var mergedXml = MergeFiles(filesToMerge);
+			var mergedXmls = MergeFiles(filesToMerge, options.MaxFileSize);
 
-			Console.WriteLine($"Writing the result to {options.DestinationFilePath}.");
+			int i = 1;
+			foreach(var mergedXml in mergedXmls)
+			{
+				var filePath = PathUtilities.AppendIndexToFileName(options.DestinationFilePath, i);
 
-			Directory.CreateDirectory(Path.GetDirectoryName(options.DestinationFilePath));
-			mergedXml.Save(options.DestinationFilePath, SaveOptions.DisableFormatting);
+				Console.WriteLine($"Writing to {filePath}");
+
+				Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+				mergedXml.Save(filePath, SaveOptions.DisableFormatting);
+
+				i++;
+			}
+
+			bool singleResultFile = i == 2;
+			if(singleResultFile)
+			{
+				Console.WriteLine($"Renaming resulting file to {options.DestinationFilePath}.");
+
+				var firstResultFilePath = PathUtilities.AppendIndexToFileName(options.DestinationFilePath, 1);
+
+				File.Move(firstResultFilePath, options.DestinationFilePath);
+			}
 
 			return 0;
 		}
@@ -63,18 +80,30 @@ namespace TcxMerger
 			}
 		}
 
-		private static XDocument MergeFiles(IEnumerable<string> filesToMerge)
+		private static IEnumerable<XDocument> MergeFiles(IEnumerable<string> filesToMerge, int? maxSize)
 		{
 			var destinationActivitiesElement = ReadActivitiesTag(filesToMerge.First());
 
 			foreach(var nextFile in filesToMerge.Skip(1))
 			{
-				var fileActiviesElement = ReadActivitiesTag(nextFile);
+				var fileActivitiesElement = ReadActivitiesTag(nextFile);
 
-				destinationActivitiesElement.Add(fileActiviesElement);
+				if(maxSize != null)
+				{
+					var elementSize = GetElementSize(fileActivitiesElement);
+					var mergedSize = GetElementSize(destinationActivitiesElement);
+					if(mergedSize + elementSize > maxSize)
+					{
+						yield return destinationActivitiesElement.Document;
+
+						destinationActivitiesElement = fileActivitiesElement;
+					}
+				}
+
+				destinationActivitiesElement.Add(fileActivitiesElement);
 			}
 
-			return destinationActivitiesElement.Document;
+			yield return destinationActivitiesElement.Document;
 		}
 
 		private static XElement ReadActivitiesTag(string filePath)
@@ -84,6 +113,17 @@ namespace TcxMerger
 			var xmlDocument = XDocument.Load(filePath);
 
 			return xmlDocument.Root.Descendants().Single(x => x.Name.LocalName == "Activities");
+		}
+
+		private static int GetElementSize(XElement element)
+		{
+			// TODO Very inefficient - slow downs with accumulated size
+			using(var memoryStream = new MemoryStream())
+			{
+				element.Save(memoryStream, SaveOptions.DisableFormatting);
+
+				return (int)memoryStream.Length;
+			}
 		}
 	}
 }
