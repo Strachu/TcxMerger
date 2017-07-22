@@ -65,14 +65,23 @@ namespace TcxMerger
 		{
 			foreach(var pattern in patterns)
 			{
-				var isFile = !File.GetAttributes(pattern).HasFlag(FileAttributes.Directory);
+				var isFile = File.Exists(pattern) && !File.GetAttributes(pattern).HasFlag(FileAttributes.Directory);
 				if(isFile)
 				{
 					yield return pattern;
 				}
 				else
 				{
-					foreach(var file in Directory.EnumerateFiles(pattern))
+					var directory = Path.GetDirectoryName(pattern);
+					var filePattern = Path.GetFileName(pattern);
+					
+					if(Directory.Exists(pattern))
+					{
+						directory = pattern;
+						filePattern = "*";
+					}
+					
+					foreach(var file in Directory.EnumerateFiles(directory, filePattern))
 					{
 						yield return file;
 					}
